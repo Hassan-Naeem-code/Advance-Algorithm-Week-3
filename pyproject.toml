@@ -1,0 +1,10 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gbm-diagnosis"
+version = "0.1.0"
+description = "Gradient Boosting disease diagnosis demo"
+authors = [ { name = "Student" } ]
+requires-python = ">=3.11"
