@@ -6,7 +6,6 @@ import os
 import argparse
 import logging
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 
 from sklearn.datasets import load_breast_cancer
@@ -53,10 +52,19 @@ def do_eda(X: pd.DataFrame, y: pd.Series, figures_dir: str):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--figures-dir", default="figures", help="Directory to save figures")
+    parser.add_argument(
+        "--figures-dir",
+        default="figures",
+        help="Directory to save figures",
+    )
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    logging.basicConfig(
+        level=logging.INFO,
+        format=(
+            "%(asctime)s %(levelname)s %(message)s"
+        ),
+    )
 
     data = load_breast_cancer(as_frame=True)
     X = data.frame.drop(columns=[data.target.name])
@@ -70,11 +78,22 @@ def main():
 
     # Train/test split
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, stratify=y, random_state=42
+        X,
+        y,
+        test_size=0.2,
+        stratify=y,
+        random_state=42,
     )
 
     # Train and evaluate
-    results = train_and_evaluate(X_train, X_test, y_train, y_test, preprocessor, output_dir=args.figures_dir)
+    results = train_and_evaluate(
+        X_train,
+        X_test,
+        y_train,
+        y_test,
+        preprocessor,
+        output_dir=args.figures_dir,
+    )
 
     logging.info("--- Hold-out Test Results ---")
     for k in ["accuracy", "precision", "recall", "f1", "roc_auc"]:

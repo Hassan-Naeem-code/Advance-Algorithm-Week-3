@@ -1,8 +1,8 @@
 """Preprocessing utilities: build a ColumnTransformer-based preprocessor.
 
-This module creates a preprocessor that imputes numerics and one-hot encodes categoricals.
-It is intentionally conservative (median imputation) and does not scale features because
-Gradient Boosting trees do not require feature scaling.
+This module creates a preprocessor that imputes numeric columns and one-hot encodes
+categorical columns. It is intentionally conservative (median imputation) and does
+not scale features because gradient-boosted trees do not require scaling.
 """
 from typing import List
 import pandas as pd
@@ -39,5 +39,9 @@ def build_preprocessor(X: pd.DataFrame) -> ColumnTransformer:
     if categorical_cols:
         transformers.append(("cat", cat_pipeline, categorical_cols))
 
-    preprocessor = ColumnTransformer(transformers=transformers, remainder="drop", sparse_threshold=0)
+    preprocessor = ColumnTransformer(
+        transformers=transformers,
+        remainder="drop",
+        sparse_threshold=0,
+    )
     return preprocessor

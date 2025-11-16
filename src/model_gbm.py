@@ -20,13 +20,19 @@ from sklearn.metrics import (
     recall_score,
     f1_score,
     roc_auc_score,
-    confusion_matrix,
 )
 
 from utils import save_confusion_matrix, save_roc_curve, save_feature_importances
 
 
-def train_and_evaluate(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series, y_test: pd.Series, preprocessor, output_dir: str = "figures") -> Dict:
+def train_and_evaluate(
+    X_train: pd.DataFrame,
+    X_test: pd.DataFrame,
+    y_train: pd.Series,
+    y_test: pd.Series,
+    preprocessor,
+    output_dir: str = "figures",
+) -> Dict:
     os.makedirs(output_dir, exist_ok=True)
 
     # Pipeline with preprocessor + GBM classifier.
@@ -44,10 +50,28 @@ def train_and_evaluate(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.
     pipeline = Pipeline([("preprocessor", preprocessor), ("clf", clf)])
 
     # Cross-validate on training set for sanity checks
-    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    scoring = ["accuracy", "precision", "recall", "f1", "roc_auc"]
+    cv = StratifiedKFold(
+        n_splits=5,
+        shuffle=True,
+        random_state=42,
+    )
 
-    cv_results = cross_validate(clone(pipeline), X_train, y_train, cv=cv, scoring=scoring, return_train_score=False)
+    scoring = [
+        "accuracy",
+        "precision",
+        "recall",
+        "f1",
+        "roc_auc",
+    ]
+
+    cv_results = cross_validate(
+        clone(pipeline),
+        X_train,
+        y_train,
+        cv=cv,
+        scoring=scoring,
+        return_train_score=False,
+    )
 
     # Fit final pipeline on full training data
     pipeline.fit(X_train, y_train)
@@ -86,9 +110,11 @@ def train_and_evaluate(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.
     # Feature importances — expand preprocessor feature names if available
     try:
         pre = pipeline.named_steps["preprocessor"]
-        # get_feature_names_out accepts input_features in recent sklearn; supply X_train.columns if needed
+        # get_feature_names_out accepts input_features in recent sklearn; try that first
         try:
-            feature_names = pre.get_feature_names_out(X_train.columns)
+            feature_names = pre.get_feature_names_out(
+                X_train.columns
+            )
         except Exception:
             feature_names = pre.get_feature_names_out()
 
@@ -97,13 +123,20 @@ def train_and_evaluate(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.
         save_feature_importances(feature_names, importances, out_path=fi_path, top_n=20)
         # Create a small table of top features
         idx = np.argsort(importances)[::-1]
-        top_features = [(feature_names[i], float(importances[i])) for i in idx[:20]]
+        top_features = [
+            (feature_names[i], float(importances[i]))
+            for i in idx[:20]
+        ]
         results["top_features"] = top_features
     except Exception:
         results["top_features"] = None
 
     # Add CV summaries
-    cv_summary = {k: float(v.mean()) for k, v in cv_results.items() if k.startswith("test_")}
+    cv_summary = {
+        k: float(v.mean())
+        for k, v in cv_results.items()
+        if k.startswith("test_")
+    }
     results["cv_summary"] = cv_summary
 
     return results

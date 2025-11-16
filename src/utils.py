@@ -1,6 +1,5 @@
 """Utility plotting helpers for evaluation figures."""
 from typing import Sequence
-import os
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -9,7 +8,9 @@ from sklearn.metrics import ConfusionMatrixDisplay, RocCurveDisplay
 
 def save_confusion_matrix(y_true, y_pred, labels, out_path: str):
     fig, ax = plt.subplots(figsize=(6, 5))
-    ConfusionMatrixDisplay.from_predictions(y_true, y_pred, display_labels=labels, cmap="Blues", ax=ax)
+    ConfusionMatrixDisplay.from_predictions(
+        y_true, y_pred, display_labels=labels, cmap="Blues", ax=ax
+    )
     ax.set_title("Confusion Matrix")
     fig.tight_layout()
     fig.savefig(out_path, dpi=150)
@@ -25,7 +26,12 @@ def save_roc_curve(y_true, y_proba, out_path: str):
     plt.close(fig)
 
 
-def save_feature_importances(feature_names: Sequence[str], importances: Sequence[float], out_path: str, top_n: int = 20):
+def save_feature_importances(
+    feature_names: Sequence[str],
+    importances: Sequence[float],
+    out_path: str,
+    top_n: int = 20,
+):
     idx = np.argsort(importances)[::-1][:top_n]
     names = [feature_names[i] for i in idx]
     vals = np.array(importances)[idx]
